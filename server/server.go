@@ -19,11 +19,18 @@ func InitServer() {
 		http.HandleFunc(path, handler)
 	}
 
+	curr, _ := os.Getwd()
+
+	fs := http.FileServer(http.Dir(curr + "/frontend"))
+
+	http.Handle("/frontend/", http.StripPrefix("/frontend", fs))
+
 	http.ListenAndServe(":8000", nil)
 }
 
 func actionIndex() httpHanlder {
 	return func(w http.ResponseWriter, r *http.Request) {
+		w.Header().Set("Cache-Control", "no-cache, no-store, must-revalidate;")
 		render("frontend/index.html", w)
 	}
 }

@@ -73,7 +73,6 @@ func Login(login string, pass string) (User, error) {
 	userRecord := db.QueryRow("SELECT * FROM users WHERE name = $1 LIMIT 1;", login)
 	userRecord.Scan(&user.Id, &user.Name, &user.Password, &user.Token, &user.Token_update)
 
-	fmt.Println("User scanned")
 	if !CheckPassword(pass, user.Password) {
 		return User{}, fmt.Errorf("Wrong password")
 	}

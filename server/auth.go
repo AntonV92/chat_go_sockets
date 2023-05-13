@@ -9,6 +9,8 @@ import (
 	"ws_app/user"
 )
 
+const CookieMaxAge = 60 * 5
+
 type CheckAuth struct {
 	handler httpHanlder
 }
@@ -73,7 +75,7 @@ func authenticateUser() httpHanlder {
 			Name:     user.AuthCookieName,
 			Value:    cookieVal,
 			Path:     "/",
-			MaxAge:   60,
+			MaxAge:   CookieMaxAge,
 			HttpOnly: true,
 			Secure:   true,
 		}
