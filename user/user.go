@@ -70,8 +70,6 @@ func Login(login string, pass string) (User, error) {
 
 	user := User{}
 
-	fmt.Println("--------------------Start login")
-
 	userRecord := db.QueryRow("SELECT * FROM users WHERE name = $1 LIMIT 1;", login)
 	userRecord.Scan(&user.Id, &user.Name, &user.Password, &user.Token, &user.Token_update)
 
@@ -81,8 +79,6 @@ func Login(login string, pass string) (User, error) {
 	}
 
 	tokenCreated := helpers.GetTimeDiffNow(user.Token_update).Minutes()
-
-	fmt.Println("-----------------Token created")
 
 	var token sql.NullString
 	if user.Token.String == "" || int(tokenCreated) > TokenExpiredMinutes {
@@ -95,10 +91,7 @@ func Login(login string, pass string) (User, error) {
 		db.QueryRow("SELECT token FROM users WHERE id = $1 LIMIT 1;", user.Id).Scan(&token)
 	}
 
-	fmt.Println("After token check")
-
 	user.Token = token
-
 	return user, nil
 }
 

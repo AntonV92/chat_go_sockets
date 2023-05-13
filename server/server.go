@@ -1,12 +1,13 @@
 package server
 
 import (
-	"encoding/json"
 	"errors"
 	"fmt"
 	"log"
 	"net/http"
 	"os"
+	"strconv"
+	"strings"
 	"ws_app/user"
 )
 
@@ -32,7 +33,7 @@ func actionIndex() func(w http.ResponseWriter, r *http.Request) {
 }
 
 func checkAuth(w http.ResponseWriter, r *http.Request) {
-	cookie, err := r.Cookie("authCookie")
+	cookie, err := r.Cookie(user.AuthCookieName)
 	if err != nil {
 		switch {
 		case errors.Is(err, http.ErrNoCookie):
@@ -46,18 +47,16 @@ func checkAuth(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	//string json value
-	cookieVal := cookie.Value
-	var decodedVal user.CookieValue
+	data := strings.Split(cookie.Value, "|")
 
-	fmt.Println(cookieVal)
-
-	if jsonErr := json.Unmarshal([]byte(cookieVal), &decodedVal); jsonErr != nil {
-		fmt.Printf("Json unmarshal error: %v\n", jsonErr)
-
+	userID, err := strconv.Atoi(data[0])
+	if err != nil {
+		log.Println(err)
+		return
 	}
+	token := data[1]
 
-	if !user.CheckToken(decodedVal.UserId, decodedVal.Token) {
+	if !user.CheckToken(userID, token) {
 		http.Redirect(w, r, "/login", 302)
 	}
 }
@@ -87,21 +86,12 @@ func actionAuth() func(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 
-		var cookieVal user.CookieValue
-		cookieVal.UserId = userIdentity.Id
-		cookieVal.Token = userIdentity.Token.String
-
-		jsonValue, err := json.Marshal(cookieVal)
-
-		if err != nil {
-			fmt.Printf("Token marshal error: %v\n", err)
-		}
-
-		fmt.Printf("Json cookie value: %s\n", jsonValue)
+		userID := strconv.Itoa(userIdentity.Id)
+		cookieVal := userID + "|" + userIdentity.Token.String
 
 		cookie := http.Cookie{
 			Name:     user.AuthCookieName,
-			Value:    string(jsonValue),
+			Value:    cookieVal,
 			Path:     "/",
 			MaxAge:   60,
 			HttpOnly: true,
