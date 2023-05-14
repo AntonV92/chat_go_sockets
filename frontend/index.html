@@ -19,13 +19,7 @@
       <div class="col-lg-12">
         <div class="card chat-app">
           <div id="plist" class="people-list">
-            <ul class="chat-list mt-2 mb-0">
-              <li class="clearfix">
-                <img src="frontend/icon.png" alt="avatar">
-                <div class="about">
-                  <div class="name">User online</div>
-                </div>
-              </li>
+            <ul id="users-online" class="chat-list mt-2 mb-0">
             </ul>
           </div>
           <div class="chat">
@@ -66,7 +60,8 @@
                 <input id="messageText" type="text" class="form-control">
                 <br>
                 <div class="input-group-prepend">
-                  <span id="sendButton" onclick="sendMessage()" class="input-group-text"><i class="fa fa-send">send</i></span>
+                  <span id="sendButton" onclick="sendMessage()" class="input-group-text"><i
+                      class="fa fa-send">send</i></span>
                 </div>
               </div>
             </div>
@@ -83,7 +78,7 @@
   function sendMessage() {
     let message = document.getElementById("messageText")
 
-    if(message.value != "") {
+    if (message.value != "") {
       socket.send(message.value)
     }
     message.value = ""
@@ -97,7 +92,23 @@
     };
 
     socket.onmessage = function (e) {
-      console.log(e.data)
+      let messageObj = JSON.parse(e.data)
+
+      if (messageObj.type == "users_event") {
+        let listHtml = ""
+        let usersList = document.getElementById("users-online")
+        for (let [id, userObj] of Object.entries(messageObj.users_online)) {
+
+          listHtml += `<li class="clearfix">
+            <img src="frontend/icon.png" alt="avatar">
+            <div class="about">
+              <div class="name">${userObj.name}</div>
+            </div>
+            </li>`
+
+        }
+        usersList.innerHTML = listHtml
+      }
     };
 
     socket.onclose = function (e) {

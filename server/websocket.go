@@ -9,6 +9,17 @@ import (
 	"github.com/gorilla/websocket"
 )
 
+const (
+	MessageTypeUsersEvent    = "users_event"
+	MessageTypeSimpleMessage = "message"
+)
+
+type Message struct {
+	Type        string             `json:"type"`
+	Content     string             `json:"content,omitempty"`
+	UsersOnline map[int]*user.User `json:"users_online,omitempty"`
+}
+
 func getConnection() httpHanlder {
 	return func(w http.ResponseWriter, r *http.Request) {
 

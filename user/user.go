@@ -20,12 +20,12 @@ const (
 )
 
 type User struct {
-	Id           int            `json:"id"`
-	Name         string         `json:"name"`
-	Password     string         `json:"password"`
-	Token        sql.NullString `json:"token"`
-	Token_update time.Time      `json:"token_update"`
-	WsConn       *websocket.Conn
+	Id           int             `json:"id"`
+	Name         string          `json:"name"`
+	Password     string          `json:"-"`
+	Token        sql.NullString  `json:"-"`
+	Token_update time.Time       `json:"-"`
+	WsConn       *websocket.Conn `json:"-"`
 }
 
 var UsersOnline = make(map[int]*User)
