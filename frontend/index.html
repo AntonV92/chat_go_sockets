@@ -26,8 +26,7 @@
             <div class="chat-header clearfix">
               <div class="row">
                 <div class="col-lg-6">
-                  <div class="chat-about">
-                    <h6 class="m-b-0">Current user</h6>
+                  <div class="chat-about" id="chat-about">
                   </div>
                 </div>
               </div>
@@ -71,67 +70,7 @@
     </div>
   </div>
 </body>
-<script>
-
-  let socket
-  let myId
-
-  function sendMessage() {
-    let message = document.getElementById("messageText")
-
-    if (message.value != "") {
-      socket.send(message.value)
-    }
-    message.value = ""
-  }
-
-  document.addEventListener("DOMContentLoaded", () => {
-    socket = new WebSocket("ws://localhost:8000/ws");
-
-    socket.onopen = function (e) {
-      console.log('websocket connection is ok')
-    };
-
-    socket.onmessage = function (e) {
-      console.log(e)
-      let messageObj = JSON.parse(e.data)
-
-      if (messageObj.type == "init") {
-        myId = messageObj.content
-      }
-
-      if (messageObj.type == "users_event") {
-        if (messageObj.users_online != undefined) {
-          let listHtml = ""
-          let usersList = document.getElementById("users-online")
-          for (let [id, userObj] of Object.entries(messageObj.users_online)) {
-
-            if (id != myId) {
-              listHtml += `<li class="clearfix">
-            <img src="frontend/icon.png" alt="avatar">
-            <div class="about">
-              <div class="name">${userObj.name}</div>
-            </div>
-            </li>`
-            }
-            console.log(userObj)
-
-          }
-          usersList.innerHTML = listHtml
-        }
-      }
-
-    };
-
-    socket.onclose = function (e) {
-      console.log("connection closed")
-    };
-
-    socket.onerror = function (error) {
-      console.log(error)
-    };
-
-  });
+<script src="frontend/script.js">
 </script>
 
 </html>

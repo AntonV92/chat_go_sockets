@@ -23,6 +23,12 @@ type Message struct {
 	UsersOnline map[int]*user.User `json:"users_online,omitempty"`
 }
 
+type ClientMessage struct {
+	FromUser int `json:"from_user,string"`
+	ToUser   int `json:"to_user,string"`
+	Content  string
+}
+
 func getConnection() httpHanlder {
 	return func(w http.ResponseWriter, r *http.Request) {
 
@@ -80,6 +86,23 @@ func getConnection() httpHanlder {
 				return
 			}
 			fmt.Printf("Get message from client: %s\n", message)
+			processClientMessage(message)
 		}
+	}
+}
+
+func processClientMessage(message []byte) {
+	var clientMes ClientMessage
+	err := json.Unmarshal(message, &clientMes)
+	if err != nil {
+		log.Println(err)
+		return
+	}
+
+	reciever := user.UsersOnline[clientMes.ToUser].WsConn
+	sendErr := reciever.WriteMessage(websocket.TextMessage, message)
+	if sendErr != nil {
+		log.Println(sendErr)
+		return
 	}
 }
