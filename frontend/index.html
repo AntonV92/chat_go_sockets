@@ -74,6 +74,7 @@
 <script>
 
   let socket
+  let myId
 
   function sendMessage() {
     let message = document.getElementById("messageText")
@@ -92,23 +93,34 @@
     };
 
     socket.onmessage = function (e) {
+      console.log(e)
       let messageObj = JSON.parse(e.data)
 
-      if (messageObj.type == "users_event") {
-        let listHtml = ""
-        let usersList = document.getElementById("users-online")
-        for (let [id, userObj] of Object.entries(messageObj.users_online)) {
+      if (messageObj.type == "init") {
+        myId = messageObj.content
+      }
 
-          listHtml += `<li class="clearfix">
+      if (messageObj.type == "users_event") {
+        if (messageObj.users_online != undefined) {
+          let listHtml = ""
+          let usersList = document.getElementById("users-online")
+          for (let [id, userObj] of Object.entries(messageObj.users_online)) {
+
+            if (id != myId) {
+              listHtml += `<li class="clearfix">
             <img src="frontend/icon.png" alt="avatar">
             <div class="about">
               <div class="name">${userObj.name}</div>
             </div>
             </li>`
+            }
+            console.log(userObj)
 
+          }
+          usersList.innerHTML = listHtml
         }
-        usersList.innerHTML = listHtml
       }
+
     };
 
     socket.onclose = function (e) {

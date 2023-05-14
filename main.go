@@ -2,7 +2,6 @@ package main
 
 import (
 	"encoding/json"
-	"fmt"
 	"log"
 	"ws_app/db"
 	"ws_app/server"
@@ -25,7 +24,6 @@ func broadcaster() {
 		case <-user.ConnectionEvents:
 
 			for _, onlineUser := range user.UsersOnline {
-				fmt.Println(onlineUser.Name)
 
 				message := server.Message{
 					Type:        server.MessageTypeUsersEvent,

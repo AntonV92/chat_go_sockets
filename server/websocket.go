@@ -1,9 +1,11 @@
 package server
 
 import (
+	"encoding/json"
 	"fmt"
 	"log"
 	"net/http"
+	"strconv"
 	"ws_app/user"
 
 	"github.com/gorilla/websocket"
@@ -12,6 +14,7 @@ import (
 const (
 	MessageTypeUsersEvent    = "users_event"
 	MessageTypeSimpleMessage = "message"
+	MessageTypeInitMessage   = "init"
 )
 
 type Message struct {
@@ -56,6 +59,19 @@ func getConnection() httpHanlder {
 			user.ConnectionEvents <- true
 			fmt.Printf("User: %d disconnected\n", userID)
 		}()
+
+		initMes := Message{
+			Type:    MessageTypeInitMessage,
+			Content: strconv.Itoa(userID),
+		}
+		jsonInit, err := json.Marshal(initMes)
+		if err != nil {
+			log.Println(err)
+			return
+		}
+
+		// send init data to client
+		conn.WriteMessage(websocket.TextMessage, jsonInit)
 
 		for {
 			_, message, err := conn.ReadMessage()
