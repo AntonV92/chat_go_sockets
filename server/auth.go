@@ -15,6 +15,24 @@ type CheckAuth struct {
 	handler httpHanlder
 }
 
+func ParseAuthCookie(value string) (userID int, token string) {
+	data := strings.Split(value, "|")
+
+	userID, err := strconv.Atoi(data[0])
+	if err != nil {
+		log.Println(err)
+		return
+	}
+	token = data[1]
+
+	return userID, token
+}
+
+func PrepareAuthCookieValue(userID int, token string) string {
+	id := strconv.Itoa(userID)
+	return id + "|" + token
+}
+
 func authenticatedRequest(f httpHanlder) *CheckAuth {
 	return &CheckAuth{handler: f}
 }
@@ -34,14 +52,7 @@ func (check *CheckAuth) check(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	data := strings.Split(cookie.Value, "|")
-
-	userID, err := strconv.Atoi(data[0])
-	if err != nil {
-		log.Println(err)
-		return
-	}
-	token := data[1]
+	userID, token := ParseAuthCookie(cookie.Value)
 
 	check.handler(w, r)
 
@@ -68,9 +79,7 @@ func authenticateUser() httpHanlder {
 			return
 		}
 
-		userID := strconv.Itoa(userIdentity.Id)
-		cookieVal := userID + "|" + userIdentity.Token.String
-
+		cookieVal := PrepareAuthCookieValue(userIdentity.Id, userIdentity.Token.String)
 		cookie := http.Cookie{
 			Name:     user.AuthCookieName,
 			Value:    cookieVal,

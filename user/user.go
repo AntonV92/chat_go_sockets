@@ -25,10 +25,11 @@ type User struct {
 	Password     string         `json:"password"`
 	Token        sql.NullString `json:"token"`
 	Token_update time.Time      `json:"token_update"`
-	WsConn       websocket.Conn
+	WsConn       *websocket.Conn
 }
 
-var UsersOnline = make(map[int]*websocket.Conn)
+var UsersOnline = make(map[int]*User)
+var ConnectionEvents = make(chan bool)
 
 type CookieValue struct {
 	UserId int    `json:"user_id"`
@@ -94,6 +95,21 @@ func Login(login string, pass string) (User, error) {
 
 	user.Token = token
 	return user, nil
+}
+
+func GetUserById(userID int) (*User, error) {
+	db := db.DbConn
+
+	user := User{}
+
+	userRecord := db.QueryRow("SELECT * FROM users WHERE id = $1 LIMIT 1;", userID)
+	err := userRecord.Scan(&user.Id, &user.Name, &user.Password, &user.Token, &user.Token_update)
+
+	if err != nil {
+		log.Println(err)
+		return nil, err
+	}
+	return &user, nil
 }
 
 // compare password with string hash

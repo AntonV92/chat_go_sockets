@@ -63,10 +63,10 @@
             </div>
             <div class="chat-message clearfix">
               <div class="input-group mb-0">
-                <input type="text" class="form-control">
+                <input id="messageText" type="text" class="form-control">
                 <br>
                 <div class="input-group-prepend">
-                  <span class="input-group-text"><i class="fa fa-send">send</i></span>
+                  <span id="sendButton" onclick="sendMessage()" class="input-group-text"><i class="fa fa-send">send</i></span>
                 </div>
               </div>
             </div>
@@ -78,19 +78,30 @@
 </body>
 <script>
 
+  let socket
+
+  function sendMessage() {
+    let message = document.getElementById("messageText")
+
+    if(message.value != "") {
+      socket.send(message.value)
+    }
+    message.value = ""
+  }
+
   document.addEventListener("DOMContentLoaded", () => {
-    let socket = new WebSocket("ws://localhost:8000/ws");
+    socket = new WebSocket("ws://localhost:8000/ws");
 
     socket.onopen = function (e) {
       console.log('websocket connection is ok')
     };
 
     socket.onmessage = function (e) {
-      console.log(`Get message: ${e.data}`)
+      console.log(e.data)
     };
 
     socket.onclose = function (e) {
-      console.log(`connection closed. ${e.reason}`)
+      console.log("connection closed")
     };
 
     socket.onerror = function (error) {
