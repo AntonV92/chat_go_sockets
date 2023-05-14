@@ -28,6 +28,8 @@ type User struct {
 	WsConn       websocket.Conn
 }
 
+var UsersOnline = make(map[int]*websocket.Conn)
+
 type CookieValue struct {
 	UserId int    `json:"user_id"`
 	Token  string `json:"token"`
