@@ -75,7 +75,29 @@
       </div>
     </div>
   </div>
-
 </body>
+<script>
+
+  document.addEventListener("DOMContentLoaded", () => {
+    let socket = new WebSocket("ws://localhost:8000/ws");
+
+    socket.onopen = function (e) {
+      console.log('websocket connection is ok')
+    };
+
+    socket.onmessage = function (e) {
+      console.log(`Get message: ${e.data}`)
+    };
+
+    socket.onclose = function (e) {
+      console.log(`connection closed. ${e.reason}`)
+    };
+
+    socket.onerror = function (error) {
+      console.log(error)
+    };
+
+  });
+</script>
 
 </html>

@@ -76,7 +76,7 @@ func authenticateUser() httpHanlder {
 			Value:    cookieVal,
 			Path:     "/",
 			MaxAge:   CookieMaxAge,
-			HttpOnly: true,
+			HttpOnly: false,
 			Secure:   true,
 		}
 

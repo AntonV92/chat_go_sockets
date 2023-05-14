@@ -12,6 +12,7 @@ var routes = map[string]httpHanlder{
 	"/":      authenticatedRequest(actionIndex()).check,
 	"/login": actionLogin(),
 	"/auth":  actionAuth(),
+	"/ws":    actionGetWsConnection(),
 }
 
 func InitServer() {
@@ -43,6 +44,10 @@ func actionLogin() httpHanlder {
 
 func actionAuth() httpHanlder {
 	return authenticateUser()
+}
+
+func actionGetWsConnection() httpHanlder {
+	return getConnection()
 }
 
 func render(fileName string, w http.ResponseWriter) {
