@@ -3,6 +3,7 @@ let myId
 let selectedUserId
 let selectedUserName
 let messagesList = document.getElementById("messages-list")
+let messagesStorage = new Map()
 
 document.addEventListener("DOMContentLoaded", () => {
     socket = new WebSocket("ws://localhost:8000/ws");
@@ -34,21 +35,28 @@ function sendMessage() {
             to_user: selectedUserId,
             content: message.value
         }
-
-        date = new Date()
-
         socket.send(JSON.stringify(clientMessage))
-        messagesList.innerHTML = prepareMessageEl(message.value, date.toLocaleString("ru", {}), 'my-message') + messagesList.innerHTML
+
+        let date = new Date()
+        let content = messagesStorage.get(selectedUserId) ?? ""
+
+        content = prepareMessageEl(message.value, date.toLocaleString("ru", {}), 'my-message') + content
+        messagesStorage.set(selectedUserId, content)
+
+        messagesList.innerHTML = messagesStorage.get(selectedUserId)
     }
     message.value = ""
 }
 
 function selectUser(e) {
-    userID = e.dataset.userid
-    userName = e.dataset.username
+    let userID = e.dataset.userid
+    let userName = e.dataset.username
     selectedUserId = userID
 
+    let content = messagesStorage.get(selectedUserId) ?? ""
     let chatAbout = document.getElementById("chat-about")
+
+    messagesList.innerHTML = content
     chatAbout.innerHTML = `<h6 class="m-b-0">${userName}</h6>`
 }
 
@@ -67,8 +75,14 @@ function onMessageEvent(e) {
     if (messageObj.type == "message") {
 
         let date = new Date()
-        messagesList.innerHTML = prepareMessageEl(messageObj.content, date.toLocaleString("ru", {}), 'other-message') + messagesList.innerHTML
+        let content = messagesStorage.get(messageObj.from_user) ?? ""
 
+        content = prepareMessageEl(messageObj.content, date.toLocaleString("ru", {}), 'other-message') + content
+        messagesStorage.set(messageObj.from_user, content)
+
+        if (selectedUserId == messageObj.from_user) {
+            messagesList.innerHTML = messagesStorage.get(messageObj.from_user)
+        }
     }
 
     if (messageObj.type == "init") {
