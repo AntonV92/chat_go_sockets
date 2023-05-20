@@ -24,9 +24,10 @@ type Message struct {
 }
 
 type ClientMessage struct {
-	FromUser int `json:"from_user,string"`
-	ToUser   int `json:"to_user,string"`
-	Content  string
+	Type     string `json:"type"`
+	FromUser int    `json:"from_user,string"`
+	ToUser   int    `json:"to_user,string"`
+	Content  string `json:"content"`
 }
 
 func getConnection() httpHanlder {
@@ -92,15 +93,23 @@ func getConnection() httpHanlder {
 }
 
 func processClientMessage(message []byte) {
-	var clientMes ClientMessage
+	var clientMes = ClientMessage{
+		Type: MessageTypeSimpleMessage,
+	}
 	err := json.Unmarshal(message, &clientMes)
 	if err != nil {
 		log.Println(err)
 		return
 	}
 
+	mes, err := json.Marshal(clientMes)
+	if err != nil {
+		log.Println(err)
+		return
+	}
+
 	reciever := user.UsersOnline[clientMes.ToUser].WsConn
-	sendErr := reciever.WriteMessage(websocket.TextMessage, message)
+	sendErr := reciever.WriteMessage(websocket.TextMessage, mes)
 	if sendErr != nil {
 		log.Println(sendErr)
 		return

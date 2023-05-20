@@ -24,9 +24,16 @@ func InitServer() {
 
 	fs := http.FileServer(http.Dir(curr + "/frontend"))
 
-	http.Handle("/frontend/", http.StripPrefix("/frontend", fs))
+	http.Handle("/frontend/", http.StripPrefix("/frontend", noCache(fs)))
 
 	http.ListenAndServe(":8000", nil)
+}
+
+func noCache(f http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		w.Header().Add("Cache-Control", "no-cache, no-store, must-revalidate;")
+		f.ServeHTTP(w, r)
+	})
 }
 
 func actionIndex() httpHanlder {

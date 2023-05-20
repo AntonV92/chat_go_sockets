@@ -2,6 +2,7 @@ let socket
 let myId
 let selectedUserId
 let selectedUserName
+let messagesList = document.getElementById("messages-list")
 
 document.addEventListener("DOMContentLoaded", () => {
     socket = new WebSocket("ws://localhost:8000/ws");
@@ -25,17 +26,19 @@ document.addEventListener("DOMContentLoaded", () => {
 function sendMessage() {
     let message = document.getElementById("messageText")
 
-
     if (message.value != "" && selectedUserId != undefined) {
 
-        console.log("to user id: " + selectedUserId)
+
         clientMessage = {
             from_user: myId,
             to_user: selectedUserId,
             content: message.value
         }
 
+        date = new Date()
+
         socket.send(JSON.stringify(clientMessage))
+        messagesList.innerHTML = prepareMessageEl(message.value, date.toLocaleString("ru", {}), 'my-message') + messagesList.innerHTML
     }
     message.value = ""
 }
@@ -49,10 +52,24 @@ function selectUser(e) {
     chatAbout.innerHTML = `<h6 class="m-b-0">${userName}</h6>`
 }
 
+function prepareMessageEl(text, date, classType) {
+    return `<li class="clearfix">
+    <div class="message-data">
+      <span class="message-data-time">${date}</span>
+    </div>
+    <div class="message ${classType}">${text}</div>
+  </li>`
+}
+
 function onMessageEvent(e) {
     let messageObj = JSON.parse(e.data)
 
-    console.log(e.data)
+    if (messageObj.type == "message") {
+
+        let date = new Date()
+        messagesList.innerHTML = prepareMessageEl(messageObj.content, date.toLocaleString("ru", {}), 'other-message') + messagesList.innerHTML
+
+    }
 
     if (messageObj.type == "init") {
         myId = messageObj.content
@@ -78,4 +95,5 @@ function onMessageEvent(e) {
             usersList.innerHTML = listHtml
         }
     }
+
 }

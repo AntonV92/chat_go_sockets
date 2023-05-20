@@ -240,6 +240,11 @@ body {
     }
 }
 
+.chat-app .chat-history {
+    height: 500px;
+    overflow-x: auto;
+}
+
 @media only screen and (min-width: 768px) and (max-width: 992px) {
     .chat-app .chat-list {
         height: 650px;

@@ -9,7 +9,7 @@ import (
 	"ws_app/user"
 )
 
-const CookieMaxAge = 60 * 5
+const CookieMaxAge = 60 * 10
 
 type CheckAuth struct {
 	handler httpHanlder
