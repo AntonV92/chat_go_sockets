@@ -62,6 +62,11 @@ function selectUser(e) {
 
     let content = messagesStorage.get(selectedUserId) ?? ""
     let chatAbout = document.getElementById("chat-about")
+    let userEl = document.querySelector(`[data-userid="${userID}"]`)
+    let unread = userEl.querySelector('.unread')
+    if (unread != undefined) {
+        unread.remove()
+    }
 
     messagesList.innerHTML = content
     chatAbout.innerHTML = `<h6 class="m-b-0">${userName}</h6>`
@@ -89,6 +94,13 @@ function onMessageEvent(e) {
 
         if (selectedUserId == messageObj.from_user) {
             messagesList.innerHTML = messagesStorage.get(messageObj.from_user)
+        } else {
+            let userEl = document.querySelector(`[data-userid="${messageObj.from_user}"]`)
+            let imgEl = document.createElement('img')
+            imgEl.src = "frontend/message.png"
+            imgEl.style = "width: 20%; height: 20%;"
+            imgEl.classList.add("unread")
+            userEl.appendChild(imgEl)
         }
     }
 
