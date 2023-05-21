@@ -27,6 +27,7 @@ func InitServer() {
 	http.Handle("/frontend/", http.StripPrefix("/frontend", noCache(fs)))
 
 	http.ListenAndServe(":8000", nil)
+	//http.ListenAndServeTLS(":443", "cert.crt", "private.key", nil)
 }
 
 func noCache(f http.Handler) http.Handler {

@@ -4,6 +4,7 @@ let selectedUserId
 let selectedUserName
 let messagesList = document.getElementById("messages-list")
 let messagesStorage = new Map()
+let messageInput = document.getElementById("messageText")
 
 document.addEventListener("DOMContentLoaded", () => {
     socket = new WebSocket("ws://localhost:8000/ws");
@@ -24,8 +25,14 @@ document.addEventListener("DOMContentLoaded", () => {
 
 });
 
+messageInput.addEventListener('keyup', function (e) {
+    if (e.code == 'Enter') {
+        sendMessage()
+    }
+});
+
 function sendMessage() {
-    let message = document.getElementById("messageText")
+    let message = messageInput
 
     if (message.value != "" && selectedUserId != undefined) {
 
