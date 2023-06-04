@@ -6,6 +6,7 @@ import (
 	"log"
 	"net/http"
 	"strconv"
+	"ws_app/helpers"
 	"ws_app/user"
 
 	"github.com/gorilla/websocket"
@@ -102,14 +103,21 @@ func processClientMessage(message []byte) {
 		return
 	}
 
+	clientMes.Content = helpers.PrepareTextLinks(clientMes.Content)
+
 	mes, err := json.Marshal(clientMes)
 	if err != nil {
 		log.Println(err)
 		return
 	}
 
-	reciever := user.UsersOnline[clientMes.ToUser].WsConn
-	sendErr := reciever.WriteMessage(websocket.TextMessage, mes)
+	targetClient := user.UsersOnline[clientMes.ToUser]
+
+	if targetClient == nil {
+		return
+	}
+
+	sendErr := targetClient.WsConn.WriteMessage(websocket.TextMessage, mes)
 	if sendErr != nil {
 		log.Println(sendErr)
 		return
