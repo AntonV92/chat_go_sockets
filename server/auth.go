@@ -67,7 +67,6 @@ func authenticateUser() httpHanlder {
 		w.Header().Set("Cache-Control", "no-cache, no-store, must-revalidate;")
 
 		r.ParseForm()
-
 		login := r.Form.Get("login")
 		pass := r.Form.Get("password")
 
@@ -75,7 +74,7 @@ func authenticateUser() httpHanlder {
 		userIdentity, loginError := user.Login(login, pass)
 
 		if loginError != nil {
-			w.WriteHeader(http.StatusUnauthorized)
+			http.Redirect(w, r, "/login", 302)
 			return
 		}
 
